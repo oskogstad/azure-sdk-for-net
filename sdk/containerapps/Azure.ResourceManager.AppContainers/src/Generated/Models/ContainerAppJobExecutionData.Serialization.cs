@@ -31,42 +31,50 @@ namespace Azure.ResourceManager.AppContainers
             Optional<SystemData> systemData = default;
             foreach (var property in element.EnumerateObject())
             {
-                if (property.NameEquals("status"u8))
+                if (property.NameEquals("properties"u8))
                 {
-                    if (property.Value.ValueKind == JsonValueKind.Null)
+                    foreach (var propertiesProperty in property.Value.EnumerateObject())
                     {
-                        continue;
+                        if (propertiesProperty.NameEquals("status"u8))
+                        {
+                            if (propertiesProperty.Value.ValueKind == JsonValueKind.Null)
+                            {
+                                continue;
+                            }
+                            status = new JobExecutionRunningState(propertiesProperty.Value.GetString());
+                            continue;
+                        }
+                        if (propertiesProperty.NameEquals("startTime"u8))
+                        {
+                            if (propertiesProperty.Value.ValueKind == JsonValueKind.Null)
+                            {
+                                continue;
+                            }
+                            startTime = propertiesProperty.Value.GetDateTimeOffset("O");
+                            continue;
+                        }
+                        if (propertiesProperty.NameEquals("endTime"u8))
+                        {
+                            if (propertiesProperty.Value.ValueKind == JsonValueKind.Null)
+                            {
+                                continue;
+                            }
+                            endTime = propertiesProperty.Value.GetDateTimeOffset("O");
+                            continue;
+                        }
+                        if (propertiesProperty.NameEquals("template"u8))
+                        {
+                            if (propertiesProperty.Value.ValueKind == JsonValueKind.Null)
+                            {
+                                continue;
+                            }
+                            template = ContainerAppJobExecutionTemplate.DeserializeContainerAppJobExecutionTemplate(propertiesProperty.Value);
+                            continue;
+                        }
                     }
-                    status = new JobExecutionRunningState(property.Value.GetString());
-                    continue;
                 }
-                if (property.NameEquals("startTime"u8))
-                {
-                    if (property.Value.ValueKind == JsonValueKind.Null)
-                    {
-                        continue;
-                    }
-                    startTime = property.Value.GetDateTimeOffset("O");
-                    continue;
-                }
-                if (property.NameEquals("endTime"u8))
-                {
-                    if (property.Value.ValueKind == JsonValueKind.Null)
-                    {
-                        continue;
-                    }
-                    endTime = property.Value.GetDateTimeOffset("O");
-                    continue;
-                }
-                if (property.NameEquals("template"u8))
-                {
-                    if (property.Value.ValueKind == JsonValueKind.Null)
-                    {
-                        continue;
-                    }
-                    template = ContainerAppJobExecutionTemplate.DeserializeContainerAppJobExecutionTemplate(property.Value);
-                    continue;
-                }
+
+
                 if (property.NameEquals("id"u8))
                 {
                     id = new ResourceIdentifier(property.Value.GetString());
